@@ -15,7 +15,7 @@ A full-stack grocery booking system built with NestJS (Backend), Next.js (Fronte
 - **Order History**: Track previous bookings.
 
 ## Tech Stack
-- **Frontend**: Next.js 14, Redux Toolkit, Framer Motion, Lucide Icons, Vanilla CSS.
+- **Frontend**: Next.js 14, Redux Toolkit, Framer Motion, Lucide Icons, Tailwind CSS.
 - **Backend**: NestJS, TypeORM, Passport.js (JWT), Swagger.
 - **Database**: PostgreSQL.
 - **Containerization**: Docker & Docker Compose.
