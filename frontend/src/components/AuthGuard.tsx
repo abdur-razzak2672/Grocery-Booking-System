@@ -13,7 +13,7 @@ export default function AuthGuard({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     if (!isAuthenticated) {
-      toast.error('Please login to continue');
+      // toast.error('Please login to continue');
       router.push(`/login?redirect=${pathname}`);
     }
   }, [isAuthenticated, router, pathname]);

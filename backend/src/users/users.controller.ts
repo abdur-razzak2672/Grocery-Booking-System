@@ -22,6 +22,11 @@ import { UserRole } from './entities/user.entity';
 export class UsersController {
   constructor(private readonly usersService: UsersService) { }
 
+  @Get('profile')
+  getProfile(@Request() req) {
+    return this.usersService.findOne(req.user.id);
+  }
+
   @Get()
   @UseGuards(RolesGuard)
   @Roles(UserRole.ADMIN)

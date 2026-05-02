@@ -17,7 +17,9 @@ api.interceptors.response.use(
   (error) => {
     if (error.response?.status === 401) {
       localStorage.removeItem('token');
-      if (typeof window !== 'undefined') {
+      // Don't redirect if we're already trying to login or register
+      const isAuthPath = error.config.url?.includes('/auth/login') || error.config.url?.includes('/auth/register');
+      if (typeof window !== 'undefined' && !isAuthPath) {
         window.location.href = '/login';
       }
     }
