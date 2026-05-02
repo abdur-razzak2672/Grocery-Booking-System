@@ -1,11 +1,14 @@
 'use client';
 
-import { ShoppingCart, User, LogIn, Store, Menu } from 'lucide-react';
+import { ShoppingCart, User, LogIn, Store, Menu, LogOut } from 'lucide-react';
 import { useSelector, useDispatch } from 'react-redux';
 import { RootState } from '@/store/store';
 import { toggleCart } from '@/store/slices/cartSlice';
+import { logout } from '@/store/slices/authSlice';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
+import toast from 'react-hot-toast';
 
 export default function Navbar() {
   const dispatch = useDispatch();
@@ -13,6 +16,13 @@ export default function Navbar() {
   const { items } = useSelector((state: RootState) => state.cart);
 
   const cartItemsCount = items.reduce((acc: number, item) => acc + item.quantity, 0);
+  const router = useRouter();
+
+  const handleLogout = () => {
+    dispatch(logout());
+    toast.success('Logged out successfully');
+    router.push('/');
+  };
 
   return (
     <nav className="glass fixed top-0 left-0 right-0 h-20 z-[1000] flex items-center shadow-sm">
@@ -62,15 +72,23 @@ export default function Navbar() {
           <div className="h-8 w-[1px] bg-slate-200 hidden sm:block" />
 
           {isAuthenticated ? (
-            <Link
-              href="#"
-              className="flex items-center gap-2 bg-slate-50 border border-slate-100 p-1.5 pr-4 rounded-full hover:shadow-md transition-all group"
-            >
-              <div className="w-8 h-8 rounded-full bg-primary/10 text-primary flex items-center justify-center font-bold overflow-hidden">
-                {user?.avatar ? <img src={user.avatar} className="w-full h-full object-cover" /> : <User size={18} />}
+            <div className="flex items-center gap-4">
+              <div
+                className="flex items-center gap-2 bg-slate-50 border border-slate-100 p-1.5 pr-4 rounded-full"
+              >
+                <div className="w-8 h-8 rounded-full bg-primary/10 text-primary flex items-center justify-center font-bold overflow-hidden">
+                  {user?.avatar ? <img src={user.avatar} className="w-full h-full object-cover" /> : <User size={18} />}
+                </div>
+                <span className="text-sm font-bold text-slate-700 hidden sm:inline">{user?.firstName}</span>
               </div>
-              <span className="text-sm font-bold text-slate-700 hidden sm:inline">{user?.firstName}</span>
-            </Link>
+              <button
+                onClick={handleLogout}
+                className="p-2 text-slate-400 hover:text-danger hover:bg-red-50 rounded-full transition-all"
+                title="Sign Out"
+              >
+                <LogOut size={20} />
+              </button>
+            </div>
           ) : (
             <Link
               href="/login"

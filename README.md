@@ -45,8 +45,8 @@ A full-stack grocery booking system built with NestJS (Backend), Next.js (Fronte
 
 4. **Access the applications**:
    - **Frontend**: [http://localhost:3000](http://localhost:3000)
-   - **Backend API**: [http://localhost:3001/api](http://localhost:3001/api)
-   - **Swagger Docs**: [http://localhost:3001/api/docs](http://localhost:3001/api/docs)
+   - **Backend API**: [http://localhost:8971/api](http://localhost:8971/api)
+   - **Swagger Docs**: [http://localhost:8971/api/docs](http://localhost:8971/api/docs)
 
 ### Admin Credentials (Seeded)
 - **Email**: razzak172758@gmail.com

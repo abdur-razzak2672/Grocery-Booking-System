@@ -12,5 +12,5 @@ RUN npm install
 COPY --from=builder /app/dist ./dist
 COPY --from=builder /app/src ./src
 COPY --from=builder /app/tsconfig.json ./
-EXPOSE 3001
+EXPOSE 8971
 CMD ["node", "dist/main"]

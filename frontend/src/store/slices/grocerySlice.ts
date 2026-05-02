@@ -7,8 +7,8 @@ export interface GroceryItem {
   price: number;
   stock: number;
   image?: string;
-  category: string;
   isAvailable: boolean;
+  isFeatured: boolean;
   unit?: string;
   discountPrice?: number;
 }

@@ -17,7 +17,11 @@ export default function MyOrdersPage() {
 
   useEffect(() => {
     if (!isAuthenticated) {
-      router.push('/login?redirect=/my-orders');
+      router.push('/login');
+      return;
+    }
+    if (user?.role === 'admin') {
+      router.push('/admin/dashboard');
       return;
     }
 

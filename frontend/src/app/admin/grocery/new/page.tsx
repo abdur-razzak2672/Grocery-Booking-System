@@ -6,7 +6,7 @@ import api from '@/utils/api';
 import { motion } from 'framer-motion';
 import Link from 'next/link';
 import toast from 'react-hot-toast';
-import { ArrowLeft, Save, Package, Image as ImageIcon, Tag, DollarSign, Layers, Info } from 'lucide-react';
+import { ArrowLeft, Save, Package, Image as ImageIcon, Tag, DollarSign, Info } from 'lucide-react';
 
 export default function GroceryFormPage() {
   const router = useRouter();
@@ -21,9 +21,9 @@ export default function GroceryFormPage() {
     discountPrice: '',
     stock: '',
     unit: 'kg',
-    category: 'Fruits & Vegetables',
     image: '',
-    isAvailable: true
+    isAvailable: true,
+    isFeatured: false
   });
   const [loading, setLoading] = useState(false);
 
@@ -34,10 +34,15 @@ export default function GroceryFormPage() {
           const res = await api.get(`/grocery/${id}`);
           const item = res.data;
           setFormData({
-            ...item,
-            price: item.price.toString(),
+            name: item.name || '',
+            description: item.description || '',
+            price: item.price?.toString() || '',
             discountPrice: item.discountPrice?.toString() || '',
-            stock: item.stock.toString()
+            stock: item.stock?.toString() || '0',
+            unit: item.unit || 'kg',
+            image: item.image || '',
+            isAvailable: item.isAvailable ?? true,
+            isFeatured: item.isFeatured ?? false
           });
         } catch (err) {
           toast.error('Failed to fetch item details');
@@ -54,10 +59,15 @@ export default function GroceryFormPage() {
     
     try {
       const payload = {
-        ...formData,
+        name: formData.name,
+        description: formData.description,
         price: parseFloat(formData.price),
         discountPrice: formData.discountPrice ? parseFloat(formData.discountPrice) : null,
         stock: parseInt(formData.stock),
+        unit: formData.unit,
+        image: formData.image,
+        isAvailable: formData.isAvailable,
+        isFeatured: formData.isFeatured
       };
 
       if (isEdit) {
@@ -204,29 +214,10 @@ export default function GroceryFormPage() {
             <section className="card p-8">
                <div className="flex items-center gap-3 mb-8 pb-4 border-b border-slate-50">
                   <Tag size={20} className="text-primary" />
-                  <h2 className="text-lg font-bold text-slate-800">Organization</h2>
+                  <h2 className="text-lg font-bold text-slate-800">Status</h2>
                </div>
                
                <div className="space-y-6">
-                 <div className="space-y-2">
-                    <label className="text-sm font-bold text-slate-700 ml-1">Category</label>
-                    <div className="relative group">
-                      <Layers size={20} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-primary transition-colors" />
-                      <select 
-                        className="input-field pl-12 h-14 font-bold appearance-none"
-                        value={formData.category}
-                        onChange={(e) => setFormData({...formData, category: e.target.value})}
-                      >
-                        <option value="Fruits & Vegetables">Fruits & Vegetables</option>
-                        <option value="Dairy & Eggs">Dairy & Eggs</option>
-                        <option value="Meat & Seafood">Meat & Seafood</option>
-                        <option value="Bakery">Bakery</option>
-                        <option value="Beverages">Beverages</option>
-                        <option value="Snacks">Snacks</option>
-                      </select>
-                    </div>
-                 </div>
-
                  <div className="flex items-center justify-between p-4 bg-slate-50 rounded-xl border border-slate-100">
                     <span className="text-sm font-bold text-slate-700">Availability Status</span>
                     <button 
@@ -235,6 +226,17 @@ export default function GroceryFormPage() {
                       className={`w-12 h-6 rounded-full transition-colors relative ${formData.isAvailable ? 'bg-primary' : 'bg-slate-300'}`}
                     >
                       <div className={`absolute top-1 w-4 h-4 rounded-full bg-white transition-all ${formData.isAvailable ? 'right-1' : 'left-1'}`} />
+                    </button>
+                 </div>
+
+                 <div className="flex items-center justify-between p-4 bg-slate-50 rounded-xl border border-slate-100">
+                    <span className="text-sm font-bold text-slate-700">Featured Product</span>
+                    <button 
+                      type="button"
+                      onClick={() => setFormData({...formData, isFeatured: !formData.isFeatured})}
+                      className={`w-12 h-6 rounded-full transition-colors relative ${formData.isFeatured ? 'bg-amber-500' : 'bg-slate-300'}`}
+                    >
+                      <div className={`absolute top-1 w-4 h-4 rounded-full bg-white transition-all ${formData.isFeatured ? 'right-1' : 'left-1'}`} />
                     </button>
                  </div>
                </div>

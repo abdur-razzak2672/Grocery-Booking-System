@@ -8,20 +8,6 @@ import {
 } from 'typeorm';
 import { OrderItem } from '../../orders/entities/order-item.entity';
 
-export enum GroceryCategory {
-  FRUITS = 'Fruits & Vegetables',
-  DAIRY = 'Dairy & Eggs',
-  MEAT = 'Meat & Seafood',
-  BAKERY = 'Bakery',
-  BEVERAGES = 'Beverages',
-  SNACKS = 'Snacks & Sweets',
-  GRAINS = 'Grains & Cereals',
-  FROZEN = 'Frozen Foods',
-  HOUSEHOLD = 'Household',
-  PERSONAL = 'Personal Care',
-  ORGANIC = 'Organic',
-}
-
 @Entity('grocery_items')
 export class GroceryItem {
   @PrimaryGeneratedColumn('uuid')
@@ -41,13 +27,6 @@ export class GroceryItem {
 
   @Column({ nullable: true })
   image: string;
-
-  @Column({
-    type: 'enum',
-    enum: GroceryCategory,
-    default: GroceryCategory.FRUITS,
-  })
-  category: GroceryCategory;
 
   @Column({ default: true })
   isAvailable: boolean;

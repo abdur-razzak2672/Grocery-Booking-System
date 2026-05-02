@@ -1,36 +1,48 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '@/store/store';
 import { useRouter } from 'next/navigation';
-import { LayoutDashboard, Package, Filter, ShoppingCart, Users, Settings, LogOut, Plus, Search, Edit2, Trash2, TrendingUp, AlertTriangle, ChevronRight, MoreHorizontal } from 'lucide-react';
+import { logout } from '@/store/slices/authSlice';
+import { LayoutDashboard, Package, Settings, ShoppingCart, LogOut, Plus, Search, Edit2, Trash2, AlertTriangle, ChevronRight, MoreHorizontal } from 'lucide-react';
 import Link from 'next/link';
 import api from '@/utils/api';
 import { motion } from 'framer-motion';
 import toast from 'react-hot-toast';
 
 export default function AdminDashboard() {
+  const dispatch = useDispatch();
   const { user, isAuthenticated } = useSelector((state: RootState) => state.auth);
   const router = useRouter();
   const [items, setItems] = useState<any[]>([]);
+  const [orders, setOrders] = useState<any[]>([]);
   const [stats, setStats] = useState<any>(null);
   const [loading, setLoading] = useState(true);
+  const [view, setView] = useState<'inventory' | 'orders'>('inventory');
+
+  const handleLogout = () => {
+    dispatch(logout());
+    toast.success('Logged out successfully');
+    router.push('/');
+  };
 
   useEffect(() => {
     if (!isAuthenticated || user?.role !== 'admin') {
-      router.push('/login');
+      router.push('/admin/login');
       return;
     }
 
     const fetchAdminData = async () => {
       try {
-        const [itemsRes, statsRes] = await Promise.all([
+        const [itemsRes, statsRes, ordersRes] = await Promise.all([
           api.get('/grocery'),
-          api.get('/grocery/admin/stats')
+          api.get('/grocery/admin/stats'),
+          api.get('/orders')
         ]);
         setItems(itemsRes.data.items);
         setStats(statsRes.data);
+        setOrders(ordersRes.data);
       } catch (err) {
         console.error(err);
       } finally {
@@ -39,7 +51,7 @@ export default function AdminDashboard() {
     };
 
     fetchAdminData();
-  }, [isAuthenticated, user, router]);
+  }, []);
 
   const handleDelete = async (id: string) => {
     if (confirm('Are you sure you want to remove this item?')) {
@@ -72,11 +84,12 @@ export default function AdminDashboard() {
         </div>
 
         <nav className="flex-1 px-4 space-y-2 mt-4">
-          <SidebarItem icon={<LayoutDashboard size={20} />} label="Overview" active />
-          <SidebarItem icon={<Package size={20} />} label="Inventory" />
-          <SidebarItem icon={<ShoppingCart size={20} />} label="Orders" />
-          <SidebarItem icon={<Users size={20} />} label="Customers" />
-          <SidebarItem icon={<Settings size={20} />} label="Settings" />
+          <button onClick={() => setView('inventory')} className="w-full text-left">
+            <SidebarItem icon={<LayoutDashboard size={20} />} label="Inventory" active={view === 'inventory'} />
+          </button>
+          <button onClick={() => setView('orders')} className="w-full text-left">
+            <SidebarItem icon={<ShoppingCart size={20} />} label="Orders" active={view === 'orders'} />
+          </button>
         </nav>
 
         <div className="p-6">
@@ -85,7 +98,10 @@ export default function AdminDashboard() {
               <p className="text-xs font-black text-slate-400 uppercase tracking-widest mb-1">Signed in as</p>
               <p className="text-sm font-bold text-slate-800 truncate">{user?.firstName} {user?.lastName}</p>
             </div>
-            <button className="mt-4 w-full flex items-center justify-center gap-2 py-2 text-sm font-bold text-danger bg-red-50 rounded-lg hover:bg-danger hover:text-white transition-all duration-300">
+            <button
+              onClick={handleLogout}
+              className="mt-4 w-full flex items-center justify-center gap-2 py-2 text-sm font-bold text-danger bg-red-50 rounded-lg hover:bg-danger hover:text-white transition-all duration-300"
+            >
               <LogOut size={16} /> Sign Out
             </button>
             <div className="absolute -right-6 -bottom-6 opacity-5 group-hover:scale-110 transition-transform">
@@ -109,118 +125,147 @@ export default function AdminDashboard() {
               <input type="text" placeholder="Search products..." className="input-field pl-12 md:w-64 bg-white/50" />
             </div>
             <Link href="/admin/grocery/new" className="btn-primary h-12 px-6 rounded-xl shadow-lg shadow-primary/20 flex items-center gap-2 whitespace-nowrap">
-              <Plus size={20} /> Add New Item
+              <Plus size={20} /> Add New Grocery Item
             </Link>
           </div>
         </header>
 
         {/* Stats Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 mb-12">
-          <StatCard title="Total Products" value={stats?.total || 0} icon={<Package className="text-primary" />} trend="+12%" />
-          <StatCard title="Active Orders" value="24" icon={<ShoppingCart className="text-secondary" />} trend="+5%" />
-          <StatCard title="Total Customers" value="1,248" icon={<Users className="text-indigo-500" />} trend="+18%" />
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 mb-12">
+          <StatCard title="Total Products" value={stats?.total || 0} icon={<Package className="text-primary" />} />
+          <StatCard title="Total Orders" value={orders.length} icon={<ShoppingCart className="text-secondary" />} />
           <StatCard
-            title="Low Stock"
+            title="Low Stock Items"
             value={stats?.lowStock || 0}
             icon={<AlertTriangle className="text-danger" />}
-            trend="-2"
             isNegative
           />
         </div>
 
-        {/* Inventory Table Card */}
-        <div className="card border-none shadow-premium overflow-hidden">
-          <div className="p-8 border-b border-slate-50 flex items-center justify-between bg-white">
-            <div>
-              <h2 className="text-xl font-black text-slate-800">Inventory Management</h2>
-              <p className="text-sm text-slate-400 font-medium mt-1">Manage and update your grocery stock levels.</p>
+        {view === 'inventory' ? (
+          <div className="card border-none shadow-premium overflow-hidden">
+            <div className="p-8 border-b border-slate-50 flex items-center justify-between bg-white">
+              <div>
+                <h2 className="text-xl font-black text-slate-800">Inventory Management</h2>
+                <p className="text-sm text-slate-400 font-medium mt-1">Manage and update your grocery stock levels.</p>
+              </div>
             </div>
-            <div className="flex gap-2">
-              <button className="p-2 hover:bg-slate-50 rounded-lg text-slate-400 transition-colors">
-                <Filter size={20} />
-              </button>
-              <button className="p-2 hover:bg-slate-50 rounded-lg text-slate-400 transition-colors">
-                <MoreHorizontal size={20} />
-              </button>
-            </div>
-          </div>
 
-          <div className="overflow-x-auto no-scrollbar">
-            <table className="w-full text-left">
-              <thead>
-                <tr className="bg-slate-50/50">
-                  <th className="px-8 py-5 text-xs font-black text-slate-400 uppercase tracking-widest">Product</th>
-                  <th className="px-8 py-5 text-xs font-black text-slate-400 uppercase tracking-widest">Category</th>
-                  <th className="px-8 py-5 text-xs font-black text-slate-400 uppercase tracking-widest text-center">Price</th>
-                  <th className="px-8 py-5 text-xs font-black text-slate-400 uppercase tracking-widest text-center">Stock</th>
-                  <th className="px-8 py-5 text-xs font-black text-slate-400 uppercase tracking-widest text-center">Status</th>
-                  <th className="px-8 py-5 text-xs font-black text-slate-400 uppercase tracking-widest text-right">Actions</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-50">
-                {items.map((item) => (
-                  <tr key={item.id} className="hover:bg-slate-50/30 transition-colors group">
-                    <td className="px-8 py-5">
-                      <div className="flex items-center gap-4">
-                        <div className="w-12 h-12 bg-slate-100 rounded-xl overflow-hidden flex-shrink-0 group-hover:scale-105 transition-transform">
-                          {item.image ? <img src={item.image} className="w-full h-full object-cover" /> : <div className="w-full h-full flex items-center justify-center text-2xl">🍎</div>}
-                        </div>
-                        <div>
-                          <span className="font-bold text-slate-800 block">{item.name}</span>
-                          <span className="text-[10px] text-slate-400 font-black uppercase tracking-tighter">ID: {item.id.slice(0, 8)}</span>
-                        </div>
-                      </div>
-                    </td>
-                    <td className="px-8 py-5">
-                      <span className="px-3 py-1 bg-slate-100 text-slate-500 rounded-lg text-xs font-bold whitespace-nowrap">
-                        {item.category}
-                      </span>
-                    </td>
-                    <td className="px-8 py-5 text-center">
-                      <span className="font-black text-slate-800">${item.price}</span>
-                    </td>
-                    <td className="px-8 py-5">
-                      <div className="flex flex-col items-center">
-                        <span className={`font-black text-lg ${item.stock <= 10 ? 'text-danger animate-pulse' : 'text-slate-700'}`}>{item.stock}</span>
-                        <span className="text-[10px] text-slate-400 font-black uppercase tracking-widest">{item.unit || 'units'}</span>
-                      </div>
-                    </td>
-                    <td className="px-8 py-5">
-                      <div className="flex justify-center">
-                        {item.isAvailable ? (
-                          <span className="badge-success badge text-[10px]">Active</span>
-                        ) : (
-                          <span className="badge-danger badge text-[10px]">Restocking</span>
-                        )}
-                      </div>
-                    </td>
-                    <td className="px-8 py-5 text-right">
-                      <div className="flex gap-2 justify-end opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                        <Link href={`/admin/grocery/edit/${item.id}`} className="p-2.5 bg-indigo-50 text-indigo-500 rounded-xl hover:bg-indigo-500 hover:text-white transition-all shadow-sm">
-                          <Edit2 size={16} />
-                        </Link>
-                        <button
-                          onClick={() => handleDelete(item.id)}
-                          className="p-2.5 bg-red-50 text-red-500 rounded-xl hover:bg-red-500 hover:text-white transition-all shadow-sm"
-                        >
-                          <Trash2 size={16} />
-                        </button>
-                      </div>
-                    </td>
+            <div className="overflow-x-auto no-scrollbar">
+              <table className="w-full text-left">
+                <thead>
+                  <tr className="bg-slate-50/50">
+                    <th className="px-8 py-5 text-xs font-black text-slate-400 uppercase tracking-widest">Product</th>
+                    <th className="px-8 py-5 text-xs font-black text-slate-400 uppercase tracking-widest text-center">Price</th>
+                    <th className="px-8 py-5 text-xs font-black text-slate-400 uppercase tracking-widest text-center">Stock</th>
+                    <th className="px-8 py-5 text-xs font-black text-slate-400 uppercase tracking-widest text-center">Status</th>
+                    <th className="px-8 py-5 text-xs font-black text-slate-400 uppercase tracking-widest text-right">Actions</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-
-          <div className="p-6 bg-white border-t border-slate-50 flex items-center justify-between">
-            <p className="text-xs font-bold text-slate-400">Showing {items.length} products in inventory</p>
-            <div className="flex gap-2">
-              <button className="px-4 py-2 border border-slate-100 rounded-lg text-xs font-bold hover:bg-slate-50 transition-colors">Previous</button>
-              <button className="px-4 py-2 bg-primary text-white rounded-lg text-xs font-bold hover:bg-primary-dark transition-colors">Next Page</button>
+                </thead>
+                <tbody className="divide-y divide-slate-50">
+                  {items.map((item) => (
+                    <tr key={item.id} className="hover:bg-slate-50/30 transition-colors group">
+                      <td className="px-8 py-5">
+                        <div className="flex items-center gap-4">
+                          <div className="w-12 h-12 bg-slate-100 rounded-xl overflow-hidden flex-shrink-0 group-hover:scale-105 transition-transform">
+                            {item.image ? <img src={item.image} className="w-full h-full object-cover" /> : <div className="w-full h-full flex items-center justify-center text-2xl">🍎</div>}
+                          </div>
+                          <div>
+                            <span className="font-bold text-slate-800 block">{item.name}</span>
+                            <span className="text-[10px] text-slate-400 font-black uppercase tracking-tighter">ID: {item.id.slice(0, 8)}</span>
+                          </div>
+                        </div>
+                      </td>
+                      <td className="px-8 py-5 text-center">
+                        <span className="font-black text-slate-800">${item.price}</span>
+                      </td>
+                      <td className="px-8 py-5">
+                        <div className="flex flex-col items-center">
+                          <span className={`font-black text-lg ${item.stock <= 10 ? 'text-danger animate-pulse' : 'text-slate-700'}`}>{item.stock}</span>
+                          <span className="text-[10px] text-slate-400 font-black uppercase tracking-widest">{item.unit || 'units'}</span>
+                        </div>
+                      </td>
+                      <td className="px-8 py-5">
+                        <div className="flex justify-center">
+                          {item.isAvailable ? (
+                            <span className="badge-success badge text-[10px]">Active</span>
+                          ) : (
+                            <span className="badge-danger badge text-[10px]">Inactive</span>
+                          )}
+                        </div>
+                      </td>
+                      <td className="px-8 py-5 text-right">
+                        <div className="flex gap-2 justify-end ">
+                          <Link href={`/admin/grocery/edit/${item.id}`} className="p-2.5 bg-indigo-50 text-indigo-500 rounded-xl hover:bg-indigo-500 hover:text-white transition-all shadow-sm">
+                            <Edit2 size={16} />
+                          </Link>
+                          <button
+                            onClick={() => handleDelete(item.id)}
+                            className="p-2.5 bg-red-50 text-red-500 rounded-xl hover:bg-red-500 hover:text-white transition-all shadow-sm"
+                          >
+                            <Trash2 size={16} />
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
             </div>
           </div>
-        </div>
+        ) : (
+          <div className="card border-none shadow-premium overflow-hidden">
+            <div className="p-8 border-b border-slate-50 flex items-center justify-between bg-white">
+              <div>
+                <h2 className="text-xl font-black text-slate-800">Order Management</h2>
+                <p className="text-sm text-slate-400 font-medium mt-1">Review and process customer bookings.</p>
+              </div>
+            </div>
+
+            <div className="overflow-x-auto no-scrollbar">
+              <table className="w-full text-left">
+                <thead>
+                  <tr className="bg-slate-50/50">
+                    <th className="px-8 py-5 text-xs font-black text-slate-400 uppercase tracking-widest">Order ID</th>
+                    <th className="px-8 py-5 text-xs font-black text-slate-400 uppercase tracking-widest">Customer</th>
+                    <th className="px-8 py-5 text-xs font-black text-slate-400 uppercase tracking-widest text-center">Amount</th>
+                    <th className="px-8 py-5 text-xs font-black text-slate-400 uppercase tracking-widest text-center">Status</th>
+                    <th className="px-8 py-5 text-xs font-black text-slate-400 uppercase tracking-widest text-right">Details</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-50">
+                  {orders.map((order) => (
+                    <tr key={order.id} className="hover:bg-slate-50/30 transition-colors group">
+                      <td className="px-8 py-5">
+                        <span className="font-bold text-slate-800">#ORD-{order.id.slice(0, 8).toUpperCase()}</span>
+                        <p className="text-[10px] text-slate-400 font-black uppercase">{new Date(order.createdAt).toLocaleDateString()}</p>
+                      </td>
+                      <td className="px-8 py-5">
+                        <span className="font-bold text-slate-800">{order.user.firstName} {order.user.lastName}</span>
+                        <p className="text-xs text-slate-400 truncate max-w-[150px]">{order.deliveryAddress}</p>
+                      </td>
+                      <td className="px-8 py-5 text-center">
+                        <span className="font-black text-primary">${Number(order.totalAmount).toFixed(2)}</span>
+                      </td>
+                      <td className="px-8 py-5">
+                        <div className="flex justify-center">
+                          <span className={`badge text-[10px] ${order.status === 'PENDING' ? 'badge-warning' : 'badge-success'}`}>
+                            {order.status}
+                          </span>
+                        </div>
+                      </td>
+                      <td className="px-8 py-5 text-right">
+                        <button className="p-2.5 bg-slate-100 text-slate-600 rounded-xl hover:bg-primary hover:text-white transition-all shadow-sm">
+                          <ChevronRight size={16} />
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        )}
       </main>
     </div>
   );
@@ -238,16 +283,12 @@ function SidebarItem({ icon, label, active = false }: { icon: any, label: string
   );
 }
 
-function StatCard({ title, value, icon, trend, isNegative }: { title: string, value: any, icon: any, trend: string, isNegative?: boolean }) {
+function StatCard({ title, value, icon, isNegative }: { title: string, value: any, icon: any, isNegative?: boolean }) {
   return (
     <div className="card p-8 border-none shadow-premium relative overflow-hidden group">
       <div className="flex justify-between items-start mb-6">
         <div className="w-14 h-14 bg-slate-50 rounded-2xl flex items-center justify-center text-2xl group-hover:bg-white group-hover:shadow-md transition-all">
           {icon}
-        </div>
-        <div className={`flex items-center gap-1 text-xs font-black tracking-tighter ${isNegative ? 'text-danger' : 'text-success'}`}>
-          <TrendingUp size={14} className={isNegative ? 'rotate-180' : ''} />
-          {trend}
         </div>
       </div>
       <h3 className="text-xs font-black text-slate-400 uppercase tracking-widest mb-1">{title}</h3>

@@ -1,6 +1,6 @@
 import { DataSource } from 'typeorm';
 import { User, UserRole } from '../users/entities/user.entity';
-import { GroceryItem, GroceryCategory } from '../grocery/entities/grocery-item.entity';
+import { GroceryItem } from '../grocery/entities/grocery-item.entity';
 import { Order } from '../orders/entities/order.entity';
 import { OrderItem } from '../orders/entities/order-item.entity';
 import * as bcrypt from 'bcrypt';
@@ -54,7 +54,6 @@ const seed = async () => {
         description: 'Fresh organic whole milk from local dairy farms',
         price: 5.50,
         stock: 50,
-        category: GroceryCategory.DAIRY,
         unit: '1L',
         isFeatured: true,
       },
@@ -63,7 +62,6 @@ const seed = async () => {
         description: 'Crisp and sweet gala apples',
         price: 2.99,
         stock: 100,
-        category: GroceryCategory.FRUITS,
         unit: '1kg',
         isFeatured: true,
       },
@@ -72,24 +70,24 @@ const seed = async () => {
         description: 'Whole wheat freshly baked brown bread',
         price: 3.20,
         stock: 30,
-        category: GroceryCategory.BAKERY,
         unit: '400g',
+        isFeatured: false,
       },
       {
         name: 'Orange Juice',
         description: '100% pure squeezed orange juice',
         price: 4.50,
         stock: 40,
-        category: GroceryCategory.BEVERAGES,
         unit: '500ml',
+        isFeatured: false,
       },
       {
         name: 'Basmati Rice',
         description: 'Premium quality long grain basmati rice',
         price: 15.00,
         stock: 20,
-        category: GroceryCategory.GRAINS,
         unit: '5kg',
+        isFeatured: false,
       },
     ];
 

@@ -5,7 +5,7 @@ import {
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, Like, FindManyOptions } from 'typeorm';
-import { GroceryItem, GroceryCategory } from './entities/grocery-item.entity';
+import { GroceryItem } from './entities/grocery-item.entity';
 import { CreateGroceryItemDto } from './dto/create-grocery-item.dto';
 import { UpdateGroceryItemDto } from './dto/update-grocery-item.dto';
 import { UpdateInventoryDto } from './dto/update-inventory.dto';
@@ -21,7 +21,6 @@ export class GroceryService {
   async findAll(query: GroceryQueryDto) {
     const {
       search,
-      category,
       minPrice,
       maxPrice,
       isAvailable,
@@ -39,7 +38,6 @@ export class GroceryService {
         { search: `%${search}%` },
       );
     }
-    if (category) qb.andWhere('item.category = :category', { category });
     if (minPrice !== undefined)
       qb.andWhere('item.price >= :minPrice', { minPrice });
     if (maxPrice !== undefined)
@@ -131,14 +129,7 @@ export class GroceryService {
       where: { stock: 0 },
     });
 
-    const categories = await this.groceryRepository
-      .createQueryBuilder('item')
-      .select('item.category', 'category')
-      .addSelect('COUNT(*)', 'count')
-      .groupBy('item.category')
-      .getRawMany();
-
-    return { total, available, lowStock, outOfStock, categories };
+    return { total, available, lowStock, outOfStock };
   }
 
   async getFeatured(): Promise<GroceryItem[]> {
@@ -146,9 +137,5 @@ export class GroceryService {
       where: { isFeatured: true, isAvailable: true },
       take: 8,
     });
-  }
-
-  async getCategories(): Promise<string[]> {
-    return Object.values(GroceryCategory);
   }
 }
