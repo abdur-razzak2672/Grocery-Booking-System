@@ -21,7 +21,6 @@ export default function CartSidebar() {
     <AnimatePresence>
       {isOpen && (
         <>
-          {/* Backdrop */}
           <motion.div 
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -30,7 +29,6 @@ export default function CartSidebar() {
             className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-[1100]"
           />
           
-          {/* Sidebar */}
           <motion.div 
             initial={{ x: '100%' }}
             animate={{ x: 0 }}
@@ -38,7 +36,6 @@ export default function CartSidebar() {
             transition={{ type: 'spring', damping: 25, stiffness: 200 }}
             className="fixed right-0 top-0 bottom-0 w-full max-w-md bg-white z-[1200] flex flex-col shadow-2xl"
           >
-            {/* Header */}
             <div className="flex items-center justify-between p-6 border-b border-slate-100">
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center text-primary">
@@ -57,7 +54,6 @@ export default function CartSidebar() {
               </button>
             </div>
 
-            {/* Items List */}
             <div className="flex-1 overflow-y-auto p-6 no-scrollbar">
               {items.length === 0 ? (
                 <div className="h-full flex flex-col items-center justify-center text-center">
@@ -128,7 +124,6 @@ export default function CartSidebar() {
               )}
             </div>
 
-            {/* Footer Summary */}
             {items.length > 0 && (
               <div className="p-6 bg-slate-50 border-t border-slate-100 space-y-4">
                 <div className="flex flex-col gap-2 mb-4">

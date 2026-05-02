@@ -25,7 +25,6 @@ const seed = async () => {
   const userRepository = dataSource.getRepository(User);
   const groceryRepository = dataSource.getRepository(GroceryItem);
 
-  // Seed Admin
   const adminEmail = 'razzak172758@gmail.com';
   const existingAdmin = await userRepository.findOne({ where: { email: adminEmail } });
 
@@ -45,7 +44,6 @@ const seed = async () => {
     console.log('ℹ️ Admin user already exists');
   }
 
-  // Seed Grocery Items
   const itemsCount = await groceryRepository.count();
   if (itemsCount === 0) {
     const items = [

@@ -4,7 +4,6 @@ import { useEffect } from 'react';
 import { useSelector } from 'react-redux';
 import { useRouter, usePathname } from 'next/navigation';
 import { RootState } from '@/store/store';
-import toast from 'react-hot-toast';
 
 export default function AuthGuard({ children }: { children: React.ReactNode }) {
   const { isAuthenticated } = useSelector((state: RootState) => state.auth);
@@ -13,7 +12,6 @@ export default function AuthGuard({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     if (!isAuthenticated) {
-      // toast.error('Please login to continue');
       router.push(`/login?redirect=${pathname}`);
     }
   }, [isAuthenticated, router, pathname]);

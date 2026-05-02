@@ -8,7 +8,7 @@ import { setCredentials } from '@/store/slices/authSlice';
 import Link from 'next/link';
 import toast from 'react-hot-toast';
 import { motion } from 'framer-motion';
-import { Mail, Lock, LogIn, ShieldCheck, User as UserIcon } from 'lucide-react';
+import { Mail, Lock, LogIn, ShieldCheck } from 'lucide-react';
 
 export default function AdminLoginPage() {
   const [email, setEmail] = useState('razzak172758@gmail.com');
@@ -48,7 +48,6 @@ export default function AdminLoginPage() {
 
   return (
     <div className="min-h-screen bg-bg-main flex items-center justify-center p-4">
-      {/* Background decoration */}
       <div className="fixed inset-0 overflow-hidden pointer-events-none">
         <div className="absolute -top-[10%] -left-[10%] w-[40%] h-[40%] bg-indigo-500/5 rounded-full blur-[120px]" />
         <div className="absolute -bottom-[10%] -right-[10%] w-[40%] h-[40%] bg-primary/5 rounded-full blur-[120px]" />

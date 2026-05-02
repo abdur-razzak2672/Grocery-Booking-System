@@ -74,7 +74,6 @@ export default function AdminDashboard() {
 
   return (
     <div className="min-h-screen bg-bg-main flex">
-      {/* Sidebar */}
       <aside className="w-72 bg-white border-r border-slate-100 flex flex-col fixed inset-y-0 left-0 z-50">
         <div className="p-8 flex items-center gap-3 text-primary font-black text-2xl tracking-tight">
           <div className="w-10 h-10 bg-primary text-white rounded-xl flex items-center justify-center shadow-lg shadow-primary/20">
@@ -111,7 +110,6 @@ export default function AdminDashboard() {
         </div>
       </aside>
 
-      {/* Main Content */}
       <main className="flex-1 ml-72 p-10">
         <header className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-12">
           <div>
@@ -130,7 +128,6 @@ export default function AdminDashboard() {
           </div>
         </header>
 
-        {/* Stats Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 mb-12">
           <StatCard title="Total Products" value={stats?.total || 0} icon={<Package className="text-primary" />} />
           <StatCard title="Total Orders" value={orders.length} icon={<ShoppingCart className="text-secondary" />} />
@@ -294,7 +291,6 @@ function StatCard({ title, value, icon, isNegative }: { title: string, value: an
       <h3 className="text-xs font-black text-slate-400 uppercase tracking-widest mb-1">{title}</h3>
       <p className="text-4xl font-black text-slate-800">{value}</p>
 
-      {/* Decorative pulse for low stock */}
       {isNegative && parseInt(value) > 0 && (
         <div className="absolute top-4 right-4 w-2 h-2 bg-danger rounded-full animate-ping" />
       )}

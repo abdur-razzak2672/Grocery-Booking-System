@@ -117,7 +117,6 @@ export default function GroceryFormPage() {
 
       <main className="container pt-12 max-w-5xl">
         <form onSubmit={handleSubmit} className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* Main Info */}
           <div className="lg:col-span-2 space-y-8">
             <section className="card p-8">
                <div className="flex items-center gap-3 mb-8 pb-4 border-b border-slate-50">
@@ -209,7 +208,6 @@ export default function GroceryFormPage() {
             </section>
           </div>
 
-          {/* Sidebar Info */}
           <div className="space-y-8">
             <section className="card p-8">
                <div className="flex items-center gap-3 mb-8 pb-4 border-b border-slate-50">

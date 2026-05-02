@@ -48,7 +48,6 @@ export default function HomePage() {
       <Navbar />
       <CartSidebar />
       
-      {/* Hero Section */}
       <section className="container pt-[120px] pb-10">
         <div className="glass rounded-[2rem] p-10 flex flex-col md:flex-row items-center justify-between gap-10 bg-gradient-to-br from-primary to-primary-dark text-white border-none min-h-[400px] overflow-hidden relative">
           <div className="flex-1 z-10">
@@ -81,7 +80,6 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Featured Products */}
       {featuredItems.length > 0 && (
         <section className="container mb-16">
           <div className="flex items-center justify-between mb-8">
@@ -95,7 +93,6 @@ export default function HomePage() {
         </section>
       )}
 
-      {/* All Products */}
       <section className="container pb-24">
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-10">
           <h2 className="text-3xl font-black text-slate-800">Available Groceries</h2>
